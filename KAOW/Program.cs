@@ -7,9 +7,10 @@ using KAOW.DTOs; // (caso utilizar DTOs diretamente aqui no futuro)
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração da conexão com o banco PostgreSQL
-builder.Services.AddDbContext<CrisisDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Configuração da conexão com o banco SQL Server Azure
+builder.Services.AddDbContext<CrisisDbContext>(opts =>
+    opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 // Adiciona suporte a controllers e API REST
 builder.Services.AddControllers();
