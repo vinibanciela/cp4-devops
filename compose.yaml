@@ -1,0 +1,48 @@
+﻿version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:15
+    container_name: kaow-postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: kaowuser
+      POSTGRES_PASSWORD: kaowpassword
+      POSTGRES_DB: kaowdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - kaow-network
+    healthcheck: # <-- Healthcheck adicionado aqui
+      test: ["CMD-SHELL", "pg_isready -U kaowuser -d kaowdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s # Adiciona um período de carência para o startup do DB
+
+  kaow-api:
+    build:
+      context: ./KAOW
+      dockerfile: Dockerfile
+    container_name: kaow-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-db: # <-- Condição de dependência alterada aqui
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=kaowdb;Username=kaowuser;Password=kaowpassword
+    networks:
+      - kaow-network
+    restart: on-failure # Adicionando restart on-failure para o kaow-api
+
+volumes:
+  postgres-data:
+
+networks:
+  kaow-network:
+    name: kaow-network
+    driver: bridge
