@@ -10,11 +10,9 @@
       ASPNETCORE_ENVIRONMENT: "Production"
       ASPNETCORE_URLS: "http://0.0.0.0:8080"
       ConnectionStrings__DefaultConnection: "Server=tcp:sqlserver-kaow.database.windows.net,1433;Initial Catalog=kaow-db-dev;Persist Security Info=False;User ID=admsql;Password=devops@Fiap2tds;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-    # Reinicia se o processo sair com código != 0 (útil se a API falhar ao iniciar)
     restart: on-failure
-    # Healthcheck simples: considera saudável quando a API responde HTTP
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/ || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/swagger/v1/swagger.json || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
