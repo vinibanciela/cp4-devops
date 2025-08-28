@@ -62,7 +62,7 @@ namespace KAOW.Data.Migrations
 
                     b.HasIndex("InstituicaoId");
 
-                    b.ToTable("BasesEmergencias");
+                    b.ToTable("BasesEmergencias", (string)null);
                 });
 
             modelBuilder.Entity("KAOW.Models.EventoExtremo", b =>
@@ -90,7 +90,7 @@ namespace KAOW.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EventosExtremos");
+                    b.ToTable("EventosExtremos", (string)null);
                 });
 
             modelBuilder.Entity("KAOW.Models.EventoInstituicao", b =>
@@ -105,7 +105,7 @@ namespace KAOW.Data.Migrations
 
                     b.HasIndex("InstituicaoId");
 
-                    b.ToTable("EventoInstituicoes");
+                    b.ToTable("EventoInstituicoes", (string)null);
                 });
 
             modelBuilder.Entity("KAOW.Models.Instituicao", b =>
@@ -146,7 +146,7 @@ namespace KAOW.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Instituicoes");
+                    b.ToTable("Instituicoes", (string)null);
                 });
 
             modelBuilder.Entity("KAOW.Models.BaseEmergencia", b =>
