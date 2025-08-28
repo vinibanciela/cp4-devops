@@ -1,27 +1,6 @@
-﻿version: '3.8'
+﻿version: "3.8"
 
 services:
-  postgres-db:
-    image: postgres:15
-    container_name: kaow-postgres-db
-    restart: always
-    environment:
-      POSTGRES_USER: kaowuser
-      POSTGRES_PASSWORD: kaowpassword
-      POSTGRES_DB: kaowdb
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - kaow-network
-    healthcheck: # <-- Healthcheck adicionado aqui
-      test: ["CMD-SHELL", "pg_isready -U kaowuser -d kaowdb"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 30s # Adiciona um período de carência para o startup do DB
-
   kaow-api:
     build:
       context: ./KAOW
@@ -29,18 +8,21 @@ services:
     container_name: kaow-api
     ports:
       - "8080:8080"
-    depends_on:
-      postgres-db: # <-- Condição de dependência alterada aqui
-        condition: service_healthy
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=kaowdb;Username=kaowuser;Password=kaowpassword
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://0.0.0.0:8080"
+      ConnectionStrings__DefaultConnection: "Server=tcp:sqlserver-kaow.database.windows.net,1433;Initial Catalog=kaow-db-dev;Persist Security Info=False;User ID=admsql;Password=devops@Fiap2tds;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+    # Reinicia se o processo sair com código != 0 (útil se a API falhar ao iniciar)
+    restart: on-failure
+    # Healthcheck simples: considera saudável quando a API responde HTTP
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/swagger/index.html || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - kaow-network
-    restart: on-failure # Adicionando restart on-failure para o kaow-api
-
-volumes:
-  postgres-data:
 
 networks:
   kaow-network:
