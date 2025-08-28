@@ -50,7 +50,7 @@ app.UseSwaggerUI(c =>
 });
 
 // Redirecionamento HTTPS (opcional, bom para segurança)
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 // Middleware de autorização (caso houvesse autenticação ou políticas de acesso)
 app.UseAuthorization();
