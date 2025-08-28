@@ -1,16 +1,17 @@
+// File: Program.cs
+
 using KAOW.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using KAOW.Services;
-using KAOW.DTOs; // (caso utilizar DTOs diretamente aqui no futuro)
-
+using KAOW.DTOs;
+using System.Reflection; // Necessário para usar Assembly.GetExecutingAssembly()
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuração da conexão com o banco SQL Server Azure
 builder.Services.AddDbContext<CrisisDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 
 // Adiciona suporte a controllers e API REST
 builder.Services.AddControllers();
@@ -22,12 +23,11 @@ builder.Services.AddScoped<BaseEmergenciaService>();
 builder.Services.AddScoped<EventoInstituicaoService>();
 
 // Adiciona serviços para documentação da API (Swagger/OpenAPI)
-builder.Services.AddEndpointsApiExplorer(); // Necessário para habilitar Swagger em APIs
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.EnableAnnotations(); // ✅ Permite usar [SwaggerOperation], [ProducesResponseType] etc.
+    c.EnableAnnotations();
 
-    // 📘 Define metadados da documentação Swagger
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "KAOW API",
@@ -38,31 +38,34 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Middleware do Swagger SEM restrição de ambiente (funciona em Production e Development)
-app.UseSwagger(); // Gera o arquivo JSON da documentação OpenAPI
+// ----- ORDEM DOS MIDDLEWARES -----
+// A ordem é crucial. Use Swagger primeiro.
+
+// Middleware do Swagger para gerar e servir a documentação
+app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    // Cria a interface interativa do Swagger para testar os endpoints
+    // A URL do arquivo JSON do Swagger. Essa URL é fixa e confiável.
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "KAOW API v1");
 
-    // Serve o Swagger UI na raiz do app: http://localhost:{porta}/
+    // Serve a interface do Swagger na raiz do app: http://localhost:{porta}/
+    // Isso é opcional, mas você já tinha no seu código.
     c.RoutePrefix = string.Empty;
 });
 
-// Redirecionamento HTTPS (opcional, bom para segurança)
-//app.UseHttpsRedirection();
-
-// Middleware de autorização (caso houvesse autenticação ou políticas de acesso)
-app.UseAuthorization();
-
 // Mapeia os controllers e endpoints da API
 app.MapControllers();
+
+// ----- NOVO: Adiciona um endpoint de health check dedicado -----
+// Este é um método mais robusto e confiável para verificar a saúde da aplicação.
+app.MapGet("/health", () => Results.Ok("API is healthy."));
 
 // Aplicar migrations automaticamente ao iniciar o app
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<CrisisDbContext>();
-    context.Database.Migrate(); // Aplica todas as migrations pendentes
+    // Aplica todas as migrations pendentes
+    context.Database.Migrate();
 }
 
 // Inicia a aplicação
