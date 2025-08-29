@@ -8,7 +8,6 @@
       - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
-      ASPNETCORE_URLS: "http://0.0.0.0:8080"
       ConnectionStrings__DefaultConnection: "Server=tcp:sqlserver-kaow.database.windows.net,1433;Initial Catalog=kaow-db-dev;Persist Security Info=False;User ID=admsql;Password=devops@Fiap2tds;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     restart: on-failure
     networks:
