@@ -1,6 +1,4 @@
-﻿version: "3.8"
-
-services:
+﻿services:
   kaow-api:
     build:
       context: ./KAOW
@@ -13,13 +11,6 @@ services:
       ASPNETCORE_URLS: "http://0.0.0.0:8080"
       ConnectionStrings__DefaultConnection: "Server=tcp:sqlserver-kaow.database.windows.net,1433;Initial Catalog=kaow-db-dev;Persist Security Info=False;User ID=admsql;Password=devops@Fiap2tds;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     restart: on-failure
-    healthcheck:
-      # A VERIFICAÇÃO DE SAÚDE AGORA USA O NOVO ENDPOINT /health
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
     networks:
       - kaow-network
 
